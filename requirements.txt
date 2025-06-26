@@ -6,5 +6,3 @@ ratelimit
 requests
 openai
 polygon-api-client
-json
-base64
