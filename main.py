@@ -38,20 +38,21 @@ PERIOD = 60  # seconds
 logging.basicConfig(
     filename=LOG_FILE,
     level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s")
+    format="%(asctime)s - %(levelname)s - %(message)s",
+)
 
 
 # Initialize Google Sheets
-scope = ["https://spreadsheets.google.com/feeds",
-         "https://www.googleapis.com/auth/drive"]
+scope = [
+    "https://spreadsheets.google.com/feeds",
+    "https://www.googleapis.com/auth/drive",
+]
 creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
 client = gspread.authorize(creds)
 sheet = client.open(SHEET_NAME).worksheet(WORKSHEET_NAME)
 
 # Initialize OpenAI
-client = OpenAI(
-    api_key=os.getenv(OPENAI_API_KEY)
-)
+client = OpenAI(api_key=os.getenv(OPENAI_API_KEY))
 
 
 # Initialize Polygon client
@@ -72,7 +73,7 @@ def get_stock_data(ticker):
             timespan="day",
             from_=start_date.strftime("%Y-%m-%d"),
             to=end_date.strftime("%Y-%m-%d"),
-            limit=2
+            limit=2,
         )
         if len(aggs) >= 2:
             prev_close = aggs[-2].close
@@ -84,7 +85,8 @@ def get_stock_data(ticker):
             day_change_pct = 0.0
         logging.info(
             f"Fetched data for {ticker}: price={current_price}, "
-            f"change={day_change_pct}%")
+            f"change={day_change_pct}%"
+        )
         return current_price, day_change_pct
     except Exception as e:
         logging.error(f"Error fetching data for {ticker}: {str(e)}")
@@ -130,14 +132,16 @@ def get_ai_analysis(ticker, current_price, day_change_pct, buy_price):
             model="gpt-4o",
             messages=[
                 {"role": "system", "content": system_message},
-                {"role": "user", "content": prompt}
+                {"role": "user", "content": prompt},
             ],
-            max_tokens=1000
+            max_tokens=1000,
         )
         usage = response.usage
-        tokens_info = (f"Tokens - Prompt: {usage.prompt_tokens}, "
-                       f"Completion: {usage.completion_tokens}, "
-                       f"Total: {usage.total_tokens}")
+        tokens_info = (
+            f"Tokens - Prompt: {usage.prompt_tokens}, "
+            f"Completion: {usage.completion_tokens}, "
+            f"Total: {usage.total_tokens}"
+        )
         logging.info(f"AI analysis for {ticker} completed - {tokens_info}")
         return response.choices[0].message.content
 
@@ -151,18 +155,14 @@ def get_ai_analysis(ticker, current_price, day_change_pct, buy_price):
 def send_telegram_message(message):
     """Send message to Telegram."""
     url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
-    payload = {
-        "chat_id": TELEGRAM_CHAT_ID,
-        "text": message,
-        "parse_mode": "Markdown"
-    }
+    payload = {"chat_id": TELEGRAM_CHAT_ID, "text": message, "parse_mode": "Markdown"}
     try:
         response = requests.post(url, json=payload)
         if response.status_code != 200:
             logging.error(
                 f"Telegram API error: {response.status_code} - {response.text}"
                 f" - {response.text}"
-                )
+            )
             return False
         logging.info("Telegram message sent successfully")
         return True
@@ -196,17 +196,17 @@ def main():
     message = f"📊 *USD Stock Update ({date_str})*\n\n"
     batch_size = CALLS_PER_MINUTE - 1  # Reserve 1 call for Telegram
     for i in range(0, len(records), batch_size):
-        batch = records[i:i + batch_size]
+        batch = records[i : i + batch_size]
         for record in batch:
             ticker = record["Ticker"].upper()
             buy_price = float(record["BuyInPrice"])
             quantity = float(record["Quantity"])
             try:
                 current_price, day_change_pct = get_stock_data(ticker)
-                profit_loss = calculate_profit_loss(
-                    buy_price, current_price, quantity)
+                profit_loss = calculate_profit_loss(buy_price, current_price, quantity)
                 ai_analysis = get_ai_analysis(
-                    ticker, current_price, day_change_pct, buy_price)
+                    ticker, current_price, day_change_pct, buy_price
+                )
                 pl_emoji = "🟢 " if profit_loss >= 0 else "🔴 "
                 message += f"""\n💸 *{ticker}*
 - Price: `${current_price:.2f}` ({day_change_pct:+.2f}%)
@@ -222,8 +222,7 @@ def main():
             except Exception as e:
                 message += f"**{ticker}**: Error fetching data: {str(e)}\n\n"
         if i + batch_size < len(records):
-            logging.info(
-                f"Batch completed, waiting {PERIOD} seconds for rate limit")
+            logging.info(f"Batch completed, waiting {PERIOD} seconds for rate limit")
             time.sleep(PERIOD)
 
     # Send Telegram message
