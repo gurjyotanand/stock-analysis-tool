@@ -15,9 +15,15 @@ import json
 load_dotenv()  # This loads the .env file
 
 # Configuration
+TEST_MODE = os.getenv("TEST_MODE", "False").lower() == "true"
 SHEET_NAME = "stock-sheet-gurjyot"  # Name of your Google Sheet
-WORKSHEET_NAME = "Sheet1"
 LOG_FILE = "stock_analysis.log"
+
+# Sheet name
+if TEST_MODE:
+    WORKSHEET_NAME = "Sheet2"
+else:
+    WORKSHEET_NAME = "Sheet1"
 
 # API-KEYS
 POLYGON_API_KEY = os.getenv("POLYGON_API_KEY")
@@ -228,7 +234,7 @@ def main():
 
     # Send Telegram message
     print(message)
-    if not send_telegram_message(message):
+    if not send_telegram_message(message) and not TEST_MODE:
         print("Failed to send Telegram message.")
 
 
