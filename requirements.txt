@@ -1,0 +1,10 @@
+python-dotenv
+gspread
+oauth2client
+pytz
+ratelimit
+requests
+openai
+polygon-api-client
+json
+base64
