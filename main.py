@@ -135,10 +135,9 @@ def get_ai_analysis(ticker, current_price, day_change_pct, buy_price):
             max_tokens=1000
         )
         usage = response.usage
-        tokens_info = f"Tokens - Prompt: {
-            usage.prompt_tokens}, Completion: {
-            usage.completion_tokens}, Total: {
-            usage.total_tokens}"
+        tokens_info = (f"Tokens - Prompt: {usage.prompt_tokens}, "
+                       f"Completion: {usage.completion_tokens}, "
+                       f"Total: {usage.total_tokens}")
         logging.info(f"AI analysis for {ticker} completed - {tokens_info}")
         return response.choices[0].message.content
 
