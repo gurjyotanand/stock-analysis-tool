@@ -21,6 +21,7 @@ LOG_FILE = "stock_analysis.log"
 
 # Sheet name
 if TEST_MODE:
+    print("#### TEST-MODE ENABLED ####")
     WORKSHEET_NAME = "Sheet2"
 else:
     WORKSHEET_NAME = "Sheet1"
@@ -234,8 +235,11 @@ def main():
 
     # Send Telegram message
     print(message)
-    if not send_telegram_message(message) and not TEST_MODE:
-        print("Failed to send Telegram message.")
+    if TEST_MODE:
+        print("Telegram message would be sent in TEST MODE.")
+    else:
+        if not send_telegram_message(message):
+            print("Failed to send Telegram message.")
 
 
 if __name__ == "__main__":
