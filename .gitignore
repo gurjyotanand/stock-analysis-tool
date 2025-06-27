@@ -3,3 +3,4 @@ credentials.json
 polygon-test.py
 venv/*
 stock_analysis.log
+backup_main.py
