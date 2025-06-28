@@ -42,4 +42,3 @@ sheet = gspread_client.open(SHEET_NAME).worksheet(WORKSHEET_NAME)
 
 # Initialize OpenAI
 openai_client = OpenAI(api_key=OPENAI_API_KEY)
-

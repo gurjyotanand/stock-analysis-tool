@@ -38,7 +38,9 @@ def main():
             quantity = float(record["Quantity"])
             type = record["Type"].lower()
             try:
-                current_price, day_change_pct, daily_high, daily_low = get_stock_data(ticker, type)
+                current_price, day_change_pct, daily_high, daily_low = get_stock_data(
+                    ticker, type
+                )
                 profit_loss = calculate_profit_loss(buy_price, current_price, quantity)
                 ai_analysis = get_ai_analysis(
                     ticker, current_price, day_change_pct, buy_price
