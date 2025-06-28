@@ -6,4 +6,4 @@ stock_analysis.log
 backup_main.py
 src/__pycache__/*
 tests/*
-__pycache__/*
+**pycache**/*
