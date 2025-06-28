@@ -29,6 +29,11 @@ def main():
         return
 
     message = f"📊 *USD Stock Update ({date_str})*\n\n"
+    total_investment = 0.0
+    total_current_worth = 0.0
+    total_yesterday_worth = 0.0
+    total_profit_loss = 0.0
+
     batch_size = CALLS_PER_MINUTE - 1
     for i in range(0, len(records), batch_size):
         batch = records[i : i + batch_size]
@@ -46,6 +51,22 @@ def main():
                     ticker, current_price, day_change_pct, buy_price
                 )
                 pl_emoji = "🟢 " if profit_loss >= 0 else "🔴 "
+
+                # Calculate totals
+                investment = buy_price * quantity
+                current_worth = current_price * quantity
+                yesterday_price = (
+                    current_price / (1 + day_change_pct / 100)
+                    if day_change_pct != 0
+                    else current_price
+                )
+                yesterday_worth = yesterday_price * quantity
+
+                total_investment += investment
+                total_current_worth += current_worth
+                total_yesterday_worth += yesterday_worth
+                total_profit_loss += profit_loss
+
                 message += f"""\n💸 *{ticker}*
 - Price: `${current_price:.2f}` ({day_change_pct:+.2f}%)
 - High: `${daily_high:.2f}` | 📉 Low: `${daily_low:.2f}`
@@ -53,14 +74,23 @@ def main():
 - *P/L:* {pl_emoji}{"+" if profit_loss >= 0 else ""}${profit_loss:.2f}
 \n🧠 *AI View*
 {ai_analysis}
-
 """
-                message += "\n────────────\n"
             except Exception as e:
                 message += f"**{ticker}**: Error fetching data: {str(e)}\n\n"
         if i + batch_size < len(records):
             logging.info(f"Batch completed, waiting {PERIOD} seconds for rate limit")
             time.sleep(PERIOD)
+
+    # Add portfolio summary
+    total_change = total_current_worth - total_yesterday_worth
+    change_emoji = "🟢 " if total_change >= 0 else "🔴 "
+    pl_summary_emoji = "🟢 " if total_profit_loss >= 0 else "🔴 "
+    message += f"""\n📈 *Portfolio Summary*
+- Total Investment Cost: `${total_investment:.2f}`
+- Current Worth: `${total_current_worth:.2f}`
+- Change from Yesterday: {change_emoji}{"+" if total_change >= 0 else ""}${total_change:.2f}
+- Total Profit/Loss: {pl_summary_emoji}{"+" if total_profit_loss >= 0 else ""}${total_profit_loss:.2f}
+"""
 
     print(message)
     if TEST_MODE:
