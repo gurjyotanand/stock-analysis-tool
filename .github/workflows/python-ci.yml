@@ -2,7 +2,7 @@ name: Python CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main refactor-and-test ]
   pull_request:
     branches: [ main ]
 
