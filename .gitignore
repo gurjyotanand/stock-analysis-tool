@@ -4,3 +4,6 @@ polygon-test.py
 venv/*
 stock_analysis.log
 backup_main.py
+src/__pycache__/*
+tests/*
+__pycache__/*

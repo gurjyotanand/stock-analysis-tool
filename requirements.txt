@@ -6,3 +6,5 @@ ratelimit
 requests
 openai
 polygon-api-client
+pytest
+pytest-mock
