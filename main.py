@@ -36,8 +36,9 @@ def main():
             ticker = record["Ticker"].upper()
             buy_price = float(record["BuyInPrice"])
             quantity = float(record["Quantity"])
+            type = record["Type"].lower()
             try:
-                current_price, day_change_pct = get_stock_data(ticker)
+                current_price, day_change_pct, daily_high, daily_low = get_stock_data(ticker, type)
                 profit_loss = calculate_profit_loss(buy_price, current_price, quantity)
                 ai_analysis = get_ai_analysis(
                     ticker, current_price, day_change_pct, buy_price
@@ -45,10 +46,10 @@ def main():
                 pl_emoji = "🟢 " if profit_loss >= 0 else "🔴 "
                 message += f"""\n💸 *{ticker}*
 - Price: `${current_price:.2f}` ({day_change_pct:+.2f}%)
+- High: `${daily_high:.2f}` | 📉 Low: `${daily_low:.2f}`
 - Qty: `{quantity} @ ${buy_price:.2f}`
 - *P/L:* {pl_emoji}{"+" if profit_loss >= 0 else ""}${profit_loss:.2f}
-
-🧠 *AI View*
+\n🧠 *AI View*
 {ai_analysis}
 
 """
